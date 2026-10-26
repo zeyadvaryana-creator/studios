@@ -10,14 +10,17 @@
 <script>
 const $=id=>document.getElementById(id);
 function row(ok,t,d){return `<div class="r"><b class="${ok===true?'ok':ok===false?'bad':'mid'}">${ok===true?'✔':ok===false?'✘':'?'}</b><div><strong>${t}</strong><br><span>${d}</span></div></div>`}
-async function html(url){for(const p of ['https://api.allorigins.win/raw?url=','https://corsproxy.io/?url=']){try{const r=await fetch(p+encodeURIComponent(url));if(r.ok)return await r.text()}catch(e){}}return null}
+async function html(url){const t0=performance.now();const tries=[async()=>{const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url));const j=await r.json();return j.contents},async()=>{const r=await fetch('https://cors.eu.org/'+url);return r.ok?r.text():null},async()=>{const r=await fetch('https://r.jina.ai/'+url,{headers:{'X-Return-Format':'html'}});return r.ok?r.text():null}];for(const f of tries){try{const x=await f();if(x&&x.length>200)return {x,ms:performance.now()-t0}}catch(e){}}return null}
 $('go').onsubmit=async e=>{e.preventDefault();let u=$('u').value.trim();if(!/^https?:\/\//i.test(u))u='https://'+u;$('w2').value=u;$('st').textContent='Checking, this takes 20 to 60 seconds...';$('out').innerHTML='';
 const psi=fetch('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?strategy=mobile&category=performance&category=seo&url='+encodeURIComponent(u)).then(r=>r.json()).catch(()=>null);
-const [p,h]=await Promise.all([psi,html(u)]);let rows=[],sum=[];
+const [p,hr]=await Promise.all([psi,html(u)]);const h=hr&&hr.x;let rows=[],sum=[];
 const a=p&&p.lighthouseResult&&p.lighthouseResult.audits;
 if(a){const sc=Math.round(p.lighthouseResult.categories.performance.score*100),lcp=a['largest-contentful-paint'].displayValue;rows.push(row(sc>=70?true:sc>=40?null:false,'Mobile speed: '+sc+' out of 100','Main content shows in '+lcp+' on a phone. Under 2.5 s is good.'));sum.push('speed '+sc);
 const fin=(p.lighthouseResult.finalUrl||u);rows.push(row(fin.startsWith('https'),'Secure (https)',fin.startsWith('https')?'Your site loads securely.':'Browsers show a "Not secure" warning.'));
 const vp=a['viewport']&&a['viewport'].score===1;rows.push(row(vp,'Mobile friendly',vp?'Set up for phone screens.':'Not set up for phones, so it shows tiny on mobile.'));}
+else if(h){const kb=Math.round(h.length/1024),sc=(h.match(/<script/gi)||[]).length;rows.push(row(kb<150&&sc<25?true:kb<400?null:false,'Page weight','Home page HTML is '+kb+' KB with '+sc+' scripts. Lighter pages load faster on phones. (Google speed score is busy, so this is a quick estimate.)'));
+rows.push(row(u.startsWith('https'),'Secure (https)',u.startsWith('https')?'Your site loads over https.':'Browsers show a "Not secure" warning.'));
+const vp=/<meta[^>]+name=["']?viewport/i.test(h);rows.push(row(vp,'Mobile friendly',vp?'Set up for phone screens.':'Not set up for phones, so it shows tiny on mobile.'));sum.push('weight '+kb+'KB')}
 else rows.push(row(null,'Speed check','Google PageSpeed is busy right now. Try again in a minute.'));
 if(h){const d=new DOMParser().parseFromString(h,'text/html');const t=(d.title||'').trim(),m=(d.querySelector('meta[name="description" i]')||{}).content||'';
 rows.push(row(t.length>=10&&t.length<=65,'Google title',t?'"'+t+'" ('+t.length+' characters, aim for 10 to 65)':'Missing. Google has nothing good to show.'));
