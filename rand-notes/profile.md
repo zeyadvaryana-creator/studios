@@ -1,7 +1,7 @@
 # Rand Notes profile text
 
 Short bio (160):
-Rand Notes: Your South African money guide. Get a free sample newsletter today
+Rand Notes: Your South African money guide. Join Rand Notes free with the first button on this page
 
 Headline:
 Stay ahead with Rand Notes
