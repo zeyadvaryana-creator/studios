@@ -30,4 +30,5 @@ const mp=[...d.querySelectorAll('a[href],iframe[src]')].some(x=>/google\.[a-z.]+
 sum.push('title '+(t?'ok':'missing'),'tel '+!!tel,'maps '+mp);}
 else rows.push(row(null,'Page details','We could not read this page directly. Send the form below and we check it by hand.'));
 $('out').innerHTML='<h2>Your results for '+u.replace(/[<>"]/g,'')+'</h2>'+rows.join('');$('ar').value=sum.join(', ');$('st').textContent='Done. See your results below.';$('out').scrollIntoView({behavior:'smooth'})};
+const q=new URLSearchParams(location.search).get('u');if(q){$('u').value=q;$('go').requestSubmit()}
 </script></body></html>
